@@ -25,13 +25,13 @@ class Cell:
         bottom_line = Line(bottom_left, bottom_right)
 
 
-        color = "black" if self.has_left_wall else "red"
+        color = "black" if self.has_left_wall else "white"
         self._win.draw_line(left_line, color)
-        color = "black" if self.has_right_wall else "red"
+        color = "black" if self.has_right_wall else "white"
         self._win.draw_line(right_line, color)
-        color = "black" if self.has_top_wall else "red"
+        color = "black" if self.has_top_wall else "white"
         self._win.draw_line(top_line, color)
-        color = "black" if self.has_bottom_wall else "red"
+        color = "black" if self.has_bottom_wall else "white"
         self._win.draw_line(bottom_line, color)
     
     def draw_move(self, to_cell, undo=False):
