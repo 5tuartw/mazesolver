@@ -13,6 +13,7 @@ class Cell:
         self._y2 = y2
         self._win = win
         self.centre = Point((x1+x2)/2, (y1+y2)/2)
+        self.visited = False
     
     def draw(self):
         top_left = Point(self._x1, self._y1)
@@ -24,7 +25,7 @@ class Cell:
         top_line = Line(top_left, top_right)
         bottom_line = Line(bottom_left, bottom_right)
 
-
+        
         color = "black" if self.has_left_wall else "white"
         self._win.draw_line(left_line, color)
         color = "black" if self.has_right_wall else "white"
@@ -33,7 +34,16 @@ class Cell:
         self._win.draw_line(top_line, color)
         color = "black" if self.has_bottom_wall else "white"
         self._win.draw_line(bottom_line, color)
-    
+        
+        #if self.has_left_wall:
+        #    self._win.draw_line(left_line, "black")
+        #if self.has_right_wall:
+        #    self._win.draw_line(right_line, "black")
+        #if self.has_top_wall:
+        #    self._win.draw_line(top_line, "black")
+        #if self.has_bottom_wall:
+        #    self._win.draw_line(bottom_line, "black")
+
     def draw_move(self, to_cell, undo=False):
         color = "gray" if undo else "red"
         move_line = Line(self.centre, to_cell.centre)

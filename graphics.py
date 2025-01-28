@@ -23,6 +23,9 @@ class Window:
 
     def draw_line(self, line, fill_color):
         return line.draw(self.__canvas, fill_color)
+    
+    def draw_text(self, point, text):
+        self.__canvas.create_text(point.x, point.y, text=text)
 
 class Point:
     def __init__(self, x, y):
@@ -40,5 +43,6 @@ class Line:
             self.point1.x, self.point1.y, self.point2.x, self.point2.y, fill=fill_color, width = 2
         )
         return self.id
+
 
 
