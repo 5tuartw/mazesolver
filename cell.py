@@ -11,6 +11,8 @@ class Cell():
     self._win = win
 
   def draw(self, x1, y1, x2, y2):
+    if self._win is None:
+      return
     if self.has_left_wall:
       line = Line(Point(x1,y1), Point(x1,y2))
       self._win.draw_line(line)
@@ -23,5 +25,11 @@ class Cell():
     if self.has_bottom_wall:
       line = Line(Point(x1,y2), Point(x2,y2))
       self._win.draw_line(line)
-      
+
+  def find_centre(self):
+    return Point((self._x1 + self._x2) / 2, (self._y1 + self._y2) / 2)
     
+  def draw_move(self, to_cell, undo=False):
+    move_line = Line(self.find_centre(), to_cell.find_centre())
+    color = "gray" if undo else "red"
+    self._win.draw_line(move_line, color)
