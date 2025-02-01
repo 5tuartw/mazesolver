@@ -3,6 +3,7 @@ import tkinter as tk
 from background import create_gradient
 from maze import Maze
 from player import Player
+from game import Game
 
 class Window:
     def __init__(self, width, height):
@@ -19,6 +20,9 @@ class Window:
         self.__canvas.pack(fill=tk.BOTH, expand=1)
         self.__running = False
         self.__root.protocol("WM_DELETE_WINDOW", self.close)
+        self._player = None
+        self._maze = None
+        self._game = None
 
     def redraw(self):
         self.__root.update_idletasks()
@@ -41,15 +45,15 @@ class Window:
 
         size_select_lbl = tk.Label(control_frame, text="Select size:")
         size_select_lbl.pack(side=tk.LEFT)
-        small_btn = tk.Button(control_frame, text="Small", command = lambda: self._set_size("small"))
+        small_btn = tk.Button(control_frame, text="Small", command = lambda: self._initiate_game("small"))
         small_btn.pack(side=tk.LEFT)
-        medium_btn = tk.Button(control_frame, text="Medium", command = lambda:  self._set_size("medium"))
+        medium_btn = tk.Button(control_frame, text="Medium", command = lambda:  self._initiate_game("medium"))
         medium_btn.pack(side=tk.LEFT)
-        large_btn = tk.Button(control_frame, text="Large", command = lambda:  self._set_size("large"))
+        large_btn = tk.Button(control_frame, text="Large", command = lambda:  self._initiate_game("large"))
         large_btn.pack(side=tk.LEFT)
         control_frame.pack()
     
-    def _set_size(self, size):
+    def _initiate_game(self, size):
         if size == "small":
             self._num_cols = 8
             self._num_rows = 6
@@ -64,9 +68,20 @@ class Window:
             print(f"Size: {size}")
         
         self._calculate_cell_size(self._width - 2 * self._margin, self._height - 2 * self._margin)
-        self._create_maze()
-        print("Maze was initialised!")
-        player = Player(self.__canvas, self._cell_size, 0, 0, self._margin)
+        
+        self._maze = Maze(self._margin,
+                          self._margin,
+                          self._num_rows,
+                          self._num_cols,
+                          self._cell_size,
+                          self._cell_size,
+                          self.__root,
+                          self.__canvas)
+        
+        print("Maze initialised!")
+        self._player = Player(self.__canvas, self._cell_size, 0, 0, self._margin)
+        self._game = Game(self.__canvas, self._maze, self._player)
+        self._setup_controls()
     
     def _calculate_cell_size(self, maze_width, maze_height):
         #check if basing size on width works for height as well
@@ -77,15 +92,22 @@ class Window:
         else:
             self._cell_size = maze_height / self._num_rows
     
-    def _create_maze(self):
-        self._maze = Maze(self._margin,
-                          self._margin,
-                          self._num_rows,
-                          self._num_cols,
-                          self._cell_size,
-                          self._cell_size,
-                          self.__root,
-                          self.__canvas)
+    def _setup_controls(self):
+        self.__root.bind('<Left>', self._on_left_press)
+        self.__root.bind('<Up>', self._on_up_press)
+        self.__root.bind('<Down>', self._on_down_press)
+        self.__root.bind('<Right>', self._on_right_press)
+    
+    def _on_left_press(self, event):
+        self._game.move_left()
+    def _on_right_press(self, event):
+        self._game.move_right()
+    def _on_down_press(self, event):
+        self._game.move_down()
+    def _on_up_press(self, event):
+        self._game.move_up()
+    
+
         
 
 

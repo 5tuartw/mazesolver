@@ -12,15 +12,5 @@ def main():
     
     win.wait_for_close()
 
-'''def calculate_cell_size(maze_width, maze_height, num_rows, num_cols):
-    #check if basing size on width works for height as well
-    cell_width = maze_width / num_cols
-    if cell_width * num_rows < maze_height:
-        return cell_width
-    #else base size on height
-    return maze_height / num_rows'''
-
-
-
 
 main()

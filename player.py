@@ -22,3 +22,6 @@ class Player:
         y2 = centre_y + radius
 
         self._shape = self._canvas.create_oval(x1, y1, x2, y2, fill = '#eb3480')
+    
+    def get_position(self):
+        return (self._x, self._y)

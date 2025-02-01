@@ -32,8 +32,6 @@ class Maze():
     self._break_walls_r(0,0)
     self._reset_cells_visited()
 
-    
-
   def _create_cells(self):
     self._canvas.delete("all")
     for column in range(self._num_cols):
