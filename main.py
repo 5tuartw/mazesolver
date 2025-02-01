@@ -1,6 +1,7 @@
-from graphics import Window
-from maze import Maze
-from cell import Cell
+#import tkinter as tk
+from graphics import *
+#from maze import Maze
+#from cell import Cell
 import sys
 
 def main():
@@ -9,23 +10,30 @@ def main():
     sys.setrecursionlimit(10000)
     win = Window(screen_x, screen_y)
     
-    num_rows = 8
+    #title = win.Label(text="Maze Craze!")
+
+    num_rows = 12
     num_cols = 12
     margin = 25
-    
-    cell_size_x = (screen_x - 2 * margin) / num_cols
-    cell_size_y = (screen_y - 2 * margin) / num_rows
+    maze_width = screen_x - (2 * margin)
+    maze_height = screen_y - (2 * margin)
+    #cell_size = calculate_cell_size(maze_width, maze_height, num_rows, num_cols)
 
-    maze = Maze(margin, margin, num_rows, num_cols, cell_size_x, cell_size_y, win)
-    maze.solve()
 
-    '''cell1 = Cell(win)
-    cell1.draw(50,50,100,100)
-    cell2 = Cell(win)
-    cell2.draw(100,50,150,100)
-
-    cell1.draw_move(cell2, True)'''
+    #maze = Maze(margin, margin, num_rows, num_cols, cell_size, cell_size, win)
+    #maze.solve()
     
     win.wait_for_close()
+
+'''def calculate_cell_size(maze_width, maze_height, num_rows, num_cols):
+    #check if basing size on width works for height as well
+    cell_width = maze_width / num_cols
+    if cell_width * num_rows < maze_height:
+        return cell_width
+    #else base size on height
+    return maze_height / num_rows'''
+
+
+
 
 main()

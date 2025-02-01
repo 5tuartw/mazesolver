@@ -1,6 +1,6 @@
-from cell import Cell
 import random
 import time
+from cell import Cell
 
 class Maze():
   def __init__(
@@ -12,6 +12,7 @@ class Maze():
     cell_size_x,
     cell_size_y,
     win=None,
+    canvas=None,
     seed=None,
   ):
     self._x1 = x1
@@ -21,6 +22,7 @@ class Maze():
     self._cell_size_x = cell_size_x
     self._cell_size_y = cell_size_y
     self._win = win
+    self._canvas = canvas
     if seed:
       random.seed(seed)
     self._cells = []
@@ -36,7 +38,7 @@ class Maze():
     for column in range(self._num_cols):
       this_column = []
       for row in range(self._num_rows):
-        this_column.append(Cell(self._win))
+        this_column.append(Cell(self._canvas))
       self._cells.append(this_column)
 
     for i in range(self._num_cols):
@@ -54,9 +56,9 @@ class Maze():
     self._animate()
 
   def _animate(self):
-    if self._win is None:
+    if self._canvas is None:
       return
-    self._win.redraw()
+    self._canvas.update()
     time.sleep(0.02)
 
   def _break_entrance_and_exit(self):
