@@ -1,5 +1,4 @@
 from tkinter import Tk
-from drawing import Point
 
 class Cell():
   def __init__(self, win):
@@ -48,3 +47,8 @@ class Cell():
     end_point = to_cell.find_centre()
     color = "gray" if undo else "red"
     self._win.create_line(start_point.x, start_point.y, end_point.x, end_point.y, fill=color)
+
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y

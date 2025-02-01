@@ -2,6 +2,7 @@
 import tkinter as tk
 from background import create_gradient
 from maze import Maze
+from player import Player
 
 class Window:
     def __init__(self, width, height):
@@ -65,6 +66,7 @@ class Window:
         self._calculate_cell_size(self._width - 2 * self._margin, self._height - 2 * self._margin)
         self._create_maze()
         print("Maze was initialised!")
+        player = Player(self.__canvas, self._cell_size, 0, 0, self._margin)
     
     def _calculate_cell_size(self, maze_width, maze_height):
         #check if basing size on width works for height as well
@@ -76,7 +78,6 @@ class Window:
             self._cell_size = maze_height / self._num_rows
     
     def _create_maze(self):
-            #maze = Maze(margin, margin, num_rows, num_cols, cell_size, cell_size, win)
         self._maze = Maze(self._margin,
                           self._margin,
                           self._num_rows,

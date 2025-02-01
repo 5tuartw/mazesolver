@@ -35,6 +35,7 @@ class Maze():
     
 
   def _create_cells(self):
+    self._canvas.delete("all")
     for column in range(self._num_cols):
       this_column = []
       for row in range(self._num_rows):
@@ -59,7 +60,10 @@ class Maze():
     if self._canvas is None:
       return
     self._canvas.update()
-    time.sleep(0.02)
+    base_delay = 0.02
+    scale_factor = (self._num_cols * self._num_rows / 100)
+    delay = max (0.001, min(base_delay, base_delay / scale_factor))
+    time.sleep(delay)
 
   def _break_entrance_and_exit(self):
     self._cells[0][0].has_top_wall = False
