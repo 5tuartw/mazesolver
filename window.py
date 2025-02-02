@@ -84,10 +84,10 @@ class Window:
         print("Maze initialised!")
         self._player = Player(self.__canvas, self._cell_size, 0, 0, self._margin)
         self._enemy = Enemy(self.__canvas, self._cell_size, self._num_cols-1, self._num_rows-1, self._margin)
-        self._powerup = Powerup(self.__canvas, self._cell_size, 3, 3, self._margin, "invisibility")
         self._game = Game(self.__canvas, self._maze, self._player)
-        self._game.find_nooks()
-        print(f"{len(self._game.nooks)} nooks found")
+        self._game.find_deadends()
+        item_loc = self._game.choose_deadend()
+        self._powerup = Powerup(self.__canvas, self._cell_size, item_loc[0], item_loc[1], self._margin, "invisibility")
         self._setup_controls()
         #self._maze.solve()
     

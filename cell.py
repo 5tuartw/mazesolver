@@ -13,6 +13,7 @@ class Cell():
     self._y1 = None
     self._y2 = None
     self._win = win
+    self.enemy_visits = 0
 
   def draw(self, x1, y1, x2, y2):
     if self._win is None:
@@ -50,7 +51,7 @@ class Cell():
     self._win.create_line(start_point.x, start_point.y, end_point.x, end_point.y, fill=color)
   
   def count_walls(self):
-    self.num_walls = sum([self.has_left_wall, self.has_right_wall, self.has_top_wall, self.has_top_wall])
+    self.num_walls = sum([self.has_left_wall, self.has_right_wall, self.has_top_wall, self.has_bottom_wall])
     return self.num_walls
 
 class Point:

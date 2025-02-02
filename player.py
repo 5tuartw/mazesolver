@@ -22,8 +22,6 @@ class Player:
         y2 = centre_y + radius
 
         edge_width = self._cell_size / 8
-
-
         self._shape = self._canvas.create_oval(x1, y1, x2, y2, outline = '#eb3480', width = edge_width, fill = "white")
     
     def get_position(self):
