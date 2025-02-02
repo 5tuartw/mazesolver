@@ -6,6 +6,7 @@ class Cell():
     self.has_right_wall = True
     self.has_top_wall = True
     self.has_bottom_wall = True
+    self.num_walls = 4
     self.visited = False
     self._x1 = None
     self._x2 = None
@@ -47,6 +48,10 @@ class Cell():
     end_point = to_cell.find_centre()
     color = "gray" if undo else "red"
     self._win.create_line(start_point.x, start_point.y, end_point.x, end_point.y, fill=color)
+  
+  def count_walls(self):
+    self.num_walls = sum([self.has_left_wall, self.has_right_wall, self.has_top_wall, self.has_top_wall])
+    return self.num_walls
 
 class Point:
     def __init__(self, x, y):

@@ -14,6 +14,8 @@ class Maze():
     win=None,
     canvas=None,
     seed=None,
+    entrance=None,
+    exit=None,
   ):
     self._x1 = x1
     self._y1 = y1
@@ -26,6 +28,8 @@ class Maze():
     if seed:
       random.seed(seed)
     self._cells = []
+    self._entrance = entrance
+    self._exit = exit
     
     self._create_cells()
     self._break_entrance_and_exit()
@@ -111,6 +115,7 @@ class Maze():
         self._cells[i][j].has_bottom_wall = False
         self._cells[i][j+1].has_top_wall = False
       
+      #time.sleep(0.4)
       self._break_walls_r(next_cell[0], next_cell[1])
 
   def _reset_cells_visited(self):
@@ -119,12 +124,12 @@ class Maze():
         j.visited = False
 
   def solve(self):
-    return self._solve_r(0,0)
+    return self._solve_r(self._num_cols-1, self._num_rows-1)
   
   def _solve_r(self, i, j):
     self._animate()
     self._cells[i][j].visited = True
-    if i == self._num_cols - 1 and j == self._num_rows -1:
+    if i == 0 and j == 0:
       return True
     
     #try left
@@ -157,5 +162,5 @@ class Maze():
         return True
       else:
         self._cells[i][j].draw_move(self._cells[i][j+1],True)
-
+    
     return False  

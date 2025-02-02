@@ -3,6 +3,8 @@ import tkinter as tk
 from background import create_gradient
 from maze import Maze
 from player import Player
+from enemy import Enemy
+from items import Powerup
 from game import Game
 
 class Window:
@@ -21,6 +23,7 @@ class Window:
         self.__running = False
         self.__root.protocol("WM_DELETE_WINDOW", self.close)
         self._player = None
+        self._enemey = None
         self._maze = None
         self._game = None
 
@@ -80,8 +83,13 @@ class Window:
         
         print("Maze initialised!")
         self._player = Player(self.__canvas, self._cell_size, 0, 0, self._margin)
+        self._enemy = Enemy(self.__canvas, self._cell_size, self._num_cols-1, self._num_rows-1, self._margin)
+        self._powerup = Powerup(self.__canvas, self._cell_size, 3, 3, self._margin, "invisibility")
         self._game = Game(self.__canvas, self._maze, self._player)
+        self._game.find_nooks()
+        print(f"{len(self._game.nooks)} nooks found")
         self._setup_controls()
+        #self._maze.solve()
     
     def _calculate_cell_size(self, maze_width, maze_height):
         #check if basing size on width works for height as well

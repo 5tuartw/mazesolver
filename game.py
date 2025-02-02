@@ -5,6 +5,7 @@ class Game:
         self._player = player
         self._player_x = self._player._x
         self._player_y = self._player._y
+        self.nooks = []
     
     def move_left(self):
         if self._player_x > 0 and not self._maze._cells[self._player_x][self._player_y].has_left_wall:
@@ -25,4 +26,13 @@ class Game:
         if self._player_y < self._maze._num_rows and not self._maze._cells[self._player_x][self._player_y].has_bottom_wall:
             self._canvas.move(self._player._shape, 0, self._player._cell_size)
             self._player_y += 1
+
+    def find_nooks(self):
+        cell_no = 0
+        for i in self._maze._cells:
+            for j in i:
+                cell_no += 1
+                print(f"Cell {cell_no} has {j.count_walls()} walls")
+                if j.count_walls() == 3:
+                    self.nooks.append((i,j))
 
