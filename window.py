@@ -1,5 +1,6 @@
 #from tkinter import Tk, BOTH, Canvas
 import tkinter as tk
+from tkinter import ttk
 from background import create_gradient
 from maze import Maze
 from player import Player
@@ -48,11 +49,11 @@ class Window:
 
         size_select_lbl = tk.Label(control_frame, text="Select size:")
         size_select_lbl.pack(side=tk.LEFT)
-        small_btn = tk.Button(control_frame, text="Small", command = lambda: self._initiate_game("small"))
+        small_btn = ttk.Button(control_frame, text="Small", command = lambda: self._initiate_game("small"))
         small_btn.pack(side=tk.LEFT)
-        medium_btn = tk.Button(control_frame, text="Medium", command = lambda:  self._initiate_game("medium"))
+        medium_btn = ttk.Button(control_frame, text="Medium", command = lambda:  self._initiate_game("medium"))
         medium_btn.pack(side=tk.LEFT)
-        large_btn = tk.Button(control_frame, text="Large", command = lambda:  self._initiate_game("large"))
+        large_btn = ttk.Button(control_frame, text="Large", command = lambda:  self._initiate_game("large"))
         large_btn.pack(side=tk.LEFT)
         control_frame.pack()
     
@@ -82,14 +83,15 @@ class Window:
                           self.__canvas)
         
         print("Maze initialised!")
-        self._player = Player(self.__canvas, self._cell_size, 0, 0, self._margin)
-        self._enemy = Enemy(self.__canvas, self._cell_size, self._num_cols-1, self._num_rows-1, self._margin)
-        self._game = Game(self.__canvas, self._maze, self._player, self._enemy)
-        self._game.find_deadends()
-        item_loc = self._game.choose_deadend()
-        self._powerup = Powerup(self.__canvas, self._cell_size, item_loc[0], item_loc[1], self._margin, "invisibility")
+        self._maze.solve()
+        #self._player = Player(self.__canvas, self._cell_size, 0, 0, self._margin)
+        #self._enemy = Enemy(self.__canvas, self._cell_size, self._num_cols-1, self._num_rows-1, self._margin)
+        #self._game = Game(self.__canvas, self._maze, self._player, self._enemy)
+        #self._game.find_deadends()
+        #item_loc = self._game.choose_deadend()
+        #self._powerup = Powerup(self.__canvas, self._cell_size, item_loc[0], item_loc[1], self._margin, "invisibility")
         self._setup_controls()
-        self._game.start_enemy_movement()
+        #self._game.start_enemy_movement()
         #self._maze.solve()
     
     def _calculate_cell_size(self, maze_width, maze_height):

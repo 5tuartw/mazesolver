@@ -73,6 +73,7 @@ class Maze():
     self._cells[self._num_cols-1][self._num_rows-1].has_bottom_wall = False
     self._draw_cell(self._num_cols-1, self._num_rows-1)
   
+  #recursive backtracking algorithm for maze generation
   def _break_walls_r(self, i, j):
     self._cells[i][j].visited = True
     while True:

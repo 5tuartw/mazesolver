@@ -52,7 +52,7 @@ class Game:
     def schedule_enemy_move(self):
         if self._running:
             self.enemy_move(self._enemy)
-            self._canvas.after(1000, self.schedule_enemy_move)
+            self._canvas.after(300, self.schedule_enemy_move)
 
     def find_enemy_moves(self, i, j):
         #check each direction and add to list
@@ -69,7 +69,7 @@ class Game:
         #check down
         if j < self._maze._num_rows - 1 and not self._maze._cells[i][j].has_bottom_wall:
             available_moves.append(("down", self._maze._cells[i][j+1].enemy_visits))
-        print(available_moves)
+        #print(available_moves)
         return available_moves
     
     def find_best_enemy_move(self, available_moves):
@@ -94,15 +94,20 @@ class Game:
     def enemy_move(self, enemy):
         current_x = enemy._x
         current_y = enemy._y
-        while not(current_x == 0 and current_y == 0):
+        if not(current_x == 0 and current_y == 0):
+            print(f"Enemy at ({current_x}, {current_y})")  # Debug statement
             if (current_x, current_y) in self.deadends:
                 self._maze._cells[current_x][current_y].enemy_visits = 10
+                print(f"Enemy in deadend at ({current_x}, {current_y})")  # Debug statement
             else:
                 self._maze._cells[current_x][current_y].enemy_visits += 1
             available_moves = self.find_enemy_moves(enemy._x, enemy._y)
+            print(f"Available moves: {available_moves}")  # Debug statement
             if available_moves == []:
+                print("No available moves, enemy freezing")  # Debug statement
                 return None
             next_move = self.find_best_enemy_move(available_moves)
+            print(f"Next move: {next_move}")  # Debug statement
 
             if next_move[0] == "left":
                 self._canvas.move(self._enemy._shape, -self._enemy._cell_size, 0)
@@ -116,5 +121,5 @@ class Game:
             if next_move[0] == "down":
                 self._canvas.move(self._enemy._shape, 0, self._enemy._cell_size)
                 self._enemy._y += 1
-            break
+            
 
