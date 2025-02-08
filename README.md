@@ -1,6 +1,22 @@
-# mazesolver
+# Maze Solver
 
+This project is a maze solver application built using Python and Tkinter. It generates and solves mazes using different algorithms and displays them in a graphical window.
 
-## List of changes
-* Addition of buttons to select maze size before drawing. This moved the maze drawing function calls into the Window Class, which then led to me updatign the Cell drawing methods to use the tkinter create_line() method instead of the draw_line method. Note: may look at separating this from the window class, as it's not the most appropriate logic for drawing the maze
-* Addition of a player
+## Features
+
+- Generate mazes using different algorithms (Backtracking, Prim's, etc.)
+- Solve mazes and display the solution path
+- Visualize multiple mazes on the same canvas
+
+## Requirements
+
+- Python 3.x
+- Tkinter (included with standard Python installations)
+
+## Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/5tuartw/mazesolver.git
+cd mazesolver
