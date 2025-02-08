@@ -14,8 +14,6 @@ class Maze():
     win=None,
     canvas=None,
     seed=None,
-    entrance=None,
-    exit=None,
   ):
     self._x1 = x1
     self._y1 = y1
@@ -28,8 +26,8 @@ class Maze():
     if seed:
       random.seed(seed)
     self._cells = []
-    self._entrance = entrance
-    self._exit = exit
+    self._visit_count = 0
+    self._exit_found = False
     
     self._create_cells()
     self._break_entrance_and_exit()
@@ -37,7 +35,7 @@ class Maze():
     self._reset_cells_visited()
 
   def _create_cells(self):
-    self._canvas.delete("all")
+    #self._canvas.delete("all")
     for column in range(self._num_cols):
       this_column = []
       for row in range(self._num_rows):
@@ -62,7 +60,7 @@ class Maze():
     if self._canvas is None:
       return
     self._canvas.update()
-    base_delay = 0.02
+    base_delay = 0.01
     scale_factor = (self._num_cols * self._num_rows / 100)
     delay = max (0.001, min(base_delay, base_delay / scale_factor))
     time.sleep(delay)
@@ -120,6 +118,7 @@ class Maze():
       self._break_walls_r(next_cell[0], next_cell[1])
 
   def _reset_cells_visited(self):
+    self._visit_count = 0
     for i in self._cells:
       for j in i:
         j.visited = False
@@ -130,7 +129,10 @@ class Maze():
   def _solve_r(self, i, j):
     self._animate()
     self._cells[i][j].visited = True
+    self._visit_count += 1
     if i == 0 and j == 0:
+      self._exit_found = True
+    if self._visit_count == self._num_cols * self._num_rows:
       return True
     
     #try left
@@ -139,7 +141,7 @@ class Maze():
       if self._solve_r(i-1,j):
         return True
       else:
-        self._cells[i][j].draw_move(self._cells[i-1][j],True)
+        self._cells[i][j].draw_move(self._cells[i-1][j],not self._exit_found)
     
     #try right
     if i < self._num_cols - 1 and not self._cells[i][j].has_right_wall and not self._cells[i+1][j].visited:
@@ -147,7 +149,7 @@ class Maze():
       if self._solve_r(i+1,j):
         return True
       else:
-        self._cells[i][j].draw_move(self._cells[i+1][j],True)
+        self._cells[i][j].draw_move(self._cells[i+1][j],not self._exit_found)
 
     #try up
     if j > 0 and not self._cells[i][j].has_top_wall and not self._cells[i][j-1].visited:
@@ -155,13 +157,13 @@ class Maze():
       if self._solve_r(i,j-1):
         return True
       else:
-        self._cells[i][j].draw_move(self._cells[i][j-1],True)
+        self._cells[i][j].draw_move(self._cells[i][j-1],not self._exit_found)
     #try down
     if j < self._num_rows - 1 and not self._cells[i][j].has_bottom_wall and not self._cells[i][j+1].visited:
       self._cells[i][j].draw_move(self._cells[i][j+1])
       if self._solve_r(i,j+1):
         return True
       else:
-        self._cells[i][j].draw_move(self._cells[i][j+1],True)
+        self._cells[i][j].draw_move(self._cells[i][j+1],not self._exit_found)
     
     return False  
