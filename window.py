@@ -52,6 +52,8 @@ class Window:
         control_frame.pack()
     
     def _create_mazes(self, style):
+        self.__canvas.delete("all")
+        self._mazes = []
         if style == "Backtrack":
             self._num_cols = 8
             self._num_rows = 6
@@ -78,7 +80,8 @@ class Window:
                                     self._cell_size,
                                     self._cell_size,
                                     self.__root,
-                                    self.__canvas))
+                                    self.__canvas,
+                                    style=style))
             # Update x_position for the next maze
             x_position += self._num_cols * self._cell_size + 10
             # If the next maze exceeds the canvas width, move to the next row
@@ -86,7 +89,7 @@ class Window:
                 x_position = self._margin
                 y_position += self._num_rows * self._cell_size + 10
 
-            self._mazes[i].solve()
+            # self._mazes[i].solve()
 
         print("Mazes initialised!")
     

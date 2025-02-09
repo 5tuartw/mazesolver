@@ -1,6 +1,7 @@
 import random
 import time
 from cell import Cell
+from collections import deque
 
 class Maze():
   def __init__(
@@ -14,6 +15,7 @@ class Maze():
     win=None,
     canvas=None,
     seed=None,
+    style=None
   ):
     self._x1 = x1
     self._y1 = y1
@@ -28,10 +30,17 @@ class Maze():
     self._cells = []
     self._visit_count = 0
     self._exit_found = False
+    self._style = style
+    self._shortest_path = []
+    self._max_distance_to_path = 0
     
     self._create_cells()
     self._break_entrance_and_exit()
-    self._break_walls_r(0,0)
+    if self._style == "Backtrack":
+      self._break_walls_backtracking_r(0,0)
+    if self._style == "Prim's":
+      self._break_walls_prims()
+    self.colour_paths()
     self._reset_cells_visited()
 
   def _create_cells(self):
@@ -60,7 +69,7 @@ class Maze():
     if self._canvas is None:
       return
     self._canvas.update()
-    base_delay = 0.01
+    base_delay = 0.005
     scale_factor = (self._num_cols * self._num_rows / 100)
     delay = max (0.001, min(base_delay, base_delay / scale_factor))
     time.sleep(delay)
@@ -72,7 +81,7 @@ class Maze():
     self._draw_cell(self._num_cols-1, self._num_rows-1)
   
   #recursive backtracking algorithm for maze generation
-  def _break_walls_r(self, i, j):
+  def _break_walls_backtracking_r(self, i, j):
     self._cells[i][j].visited = True
     while True:
       to_visit = []
@@ -115,7 +124,66 @@ class Maze():
         self._cells[i][j+1].has_top_wall = False
       
       #time.sleep(0.4)
-      self._break_walls_r(next_cell[0], next_cell[1])
+      self._break_walls_backtracking_r(next_cell[0], next_cell[1])
+
+  #Prim's algorithm for maze generation
+  def _break_walls_prims(self):
+    start_x = random.randrange(self._num_cols)
+    start_y = random.randrange(self._num_rows)
+    self._cells[start_x][start_y].visited = True
+    walls = []
+    #add all walls to the list
+    for i in range(self._num_cols):
+      for j in range(self._num_rows):
+        if i > 0:
+          walls.append((i,j,i-1,j))
+        if i < self._num_cols - 1:
+          walls.append((i,j,i+1,j))
+        if j > 0:
+          walls.append((i,j,i,j-1))
+        if j < self._num_rows - 1:
+          walls.append((i,j,i,j+1))
+    while len(walls) > 0:
+      random.shuffle(walls)
+      wall = walls.pop()
+      x1 = wall[0]
+      y1 = wall[1]
+      x2 = wall[2]
+      y2 = wall[3]
+      if self._cells[x1][y1].visited and not self._cells[x2][y2].visited:
+        # Remove the wall between the cells
+        if x1 == x2:
+            if y1 > y2:
+                self._cells[x1][y1].has_top_wall = False
+                self._cells[x2][y2].has_bottom_wall = False
+            else:
+                self._cells[x1][y1].has_bottom_wall = False
+                self._cells[x2][y2].has_top_wall = False
+        else:
+            if x1 > x2:
+                self._cells[x1][y1].has_left_wall = False
+                self._cells[x2][y2].has_right_wall = False
+            else:
+                self._cells[x1][y1].has_right_wall = False
+                self._cells[x2][y2].has_left_wall = False
+        self._cells[x2][y2].visited = True
+        self._draw_cell(x1, y1)
+        self._draw_cell(x2, y2)
+        self._animate()
+
+        #add new walls to the list
+        if x2 > 0:
+          walls.append((x2,y2,x2-1,y2))
+        if x2 < self._num_cols - 1:
+          walls.append((x2,y2,x2+1,y2))
+        if y2 > 0:
+          walls.append((x2,y2,x2,y2-1))
+        if y2 < self._num_rows - 1:
+          walls.append((x2,y2,x2,y2+1))
+        self._animate()
+
+    self._reset_cells_visited()
+    
 
   def _reset_cells_visited(self):
     self._visit_count = 0
@@ -166,4 +234,100 @@ class Maze():
       else:
         self._cells[i][j].draw_move(self._cells[i][j+1],not self._exit_found)
     
-    return False  
+    return False
+  
+  def find_shortest_path(self, start, end):
+      queue = deque([(start, [start])])
+      visited = set()
+      while queue:
+          (current, path) = queue.popleft()
+          if current == end:
+              return path
+          visited.add(current)
+          i, j = current
+          neighbors = []
+          if i > 0 and not self._cells[i][j].has_left_wall:
+              neighbors.append((i-1, j))
+          if i < self._num_cols - 1 and not self._cells[i][j].has_right_wall:
+              neighbors.append((i+1, j))
+          if j > 0 and not self._cells[i][j].has_top_wall:
+              neighbors.append((i, j-1))
+          if j < self._num_rows - 1 and not self._cells[i][j].has_bottom_wall:
+              neighbors.append((i, j+1))
+          for neighbor in neighbors:
+              if neighbor not in visited:
+                  queue.append((neighbor, path + [neighbor]))
+      return None
+
+  def update_distances_to_path(self):
+      def dfs_update(i, j):
+          stack = [(i, j)]
+          visited = set()
+          while stack:
+              ci, cj = stack.pop()
+              if (ci, cj) in self._shortest_path:
+                  self._cells[ci][cj].distance_to_path = 0
+                  continue
+
+              if (ci, cj) in visited:
+                  continue
+              visited.add((ci, cj))
+
+              neighbors = []
+              if ci > 0 and not self._cells[ci][cj].has_left_wall:
+                  neighbors.append((ci-1, cj))
+              if ci < self._num_cols - 1 and not self._cells[ci][cj].has_right_wall:
+                  neighbors.append((ci+1, cj))
+              if cj > 0 and not self._cells[ci][cj].has_top_wall:
+                  neighbors.append((ci, cj-1))
+              if cj < self._num_rows - 1 and not self._cells[ci][cj].has_bottom_wall:
+                  neighbors.append((ci, cj+1))
+
+              min_distance = float('inf')
+              for ni, nj in neighbors:
+                  if self._cells[ni][nj].distance_to_path is not None:
+                      min_distance = min(min_distance, self._cells[ni][nj].distance_to_path)
+
+              if min_distance != float('inf'):
+                  self._cells[ci][cj].distance_to_path = min_distance + 1
+                  self._max_distance_to_path = max(self._max_distance_to_path, self._cells[ci][cj].distance_to_path)
+              else:
+                  for ni, nj in neighbors:
+                      if self._cells[ni][nj].distance_to_path is None:
+                          stack.append((ni, nj))
+
+      self._max_distance_to_path = 0  # Reset max distance before updating
+      for i in range(self._num_cols):
+          for j in range(self._num_rows):
+              if self._cells[i][j].distance_to_path is None:
+                  dfs_update(i, j)
+      
+      # Debugging output to check if all cells have a distance_to_path value
+      for i in range(self._num_cols):
+          for j in range(self._num_rows):
+              if self._cells[i][j].distance_to_path is None:
+                  print(f"Cell ({i}, {j}) does not have a distance_to_path value")
+
+
+  def colour_paths(self):
+      start = (0, 0)
+      end = (self._num_cols - 1, self._num_rows - 1)
+      self._shortest_path = self.find_shortest_path(start, end)
+      self.update_distances_to_path()
+
+      if self._shortest_path:
+          longest_path = self._num_cols * self._num_rows - len(self._shortest_path)
+          for i in range(self._num_cols):
+              for j in range(self._num_rows):
+                  distance = self._cells[i][j].distance_to_path
+                  if distance is not None:
+                      # Calculate the color based on the distance
+                      if distance == 0:
+                          color = '#FFFF00'  # Yellow
+                      else:
+                          red_intensity = 255
+                          green_intensity = int(255 * (1 - (distance / longest_path)))
+                          color = f'#{red_intensity:02x}{green_intensity:02x}00'
+                      self._cells[i][j].draw(self._x1 + i * self._cell_size_x, self._y1 + j * self._cell_size_y, self._x1 + (i+1) * self._cell_size_x, self._y1 + (j+1) * self._cell_size_y, colour=color)
+                      self._animate()
+  

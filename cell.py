@@ -13,14 +13,19 @@ class Cell():
     self._y1 = None
     self._y2 = None
     self._win = win
+    self.colour = "white"
+    self.distance_to_path = None
 
-  def draw(self, x1, y1, x2, y2):
+  def draw(self, x1, y1, x2, y2, colour=None):
     if self._win is None:
       return
     self._x1 = x1
     self._x2 = x2
     self._y1 = y1
     self._y2 = y2
+
+    fill_colour = colour if colour else self.colour
+    self._win.create_rectangle(x1, y1, x2, y2, fill=fill_colour) 
 
     if self.has_left_wall:
       self._win.create_line(x1,y1,x1,y2, fill="black")
