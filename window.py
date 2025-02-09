@@ -47,7 +47,7 @@ class Window:
         small_btn.pack(side=tk.LEFT)
         medium_btn = ttk.Button(control_frame, text="Prim's", command = lambda:  self._create_mazes("Prim's"))
         medium_btn.pack(side=tk.LEFT)
-        large_btn = ttk.Button(control_frame, text="Other", command = lambda:  self._create_mazes("Other"))
+        large_btn = ttk.Button(control_frame, text="Kruskal's", command = lambda:  self._create_mazes("Kruskal's"))
         large_btn.pack(side=tk.LEFT)
         control_frame.pack()
     
@@ -62,7 +62,7 @@ class Window:
             self._num_cols = 8
             self._num_rows = 6
             print(f"Style: {style}")
-        if style == "Other":
+        if style == "Kruskal's":
             self._num_cols = 8
             self._num_rows = 6
             print(f"Style: {style}")
@@ -72,7 +72,7 @@ class Window:
         x_position = self._margin
         y_position = self._margin
 
-        for i in range(9):
+        for i in range(12):
             self._mazes.append(Maze(x_position,
                                     y_position,
                                     self._num_rows,
@@ -90,6 +90,7 @@ class Window:
                 y_position += self._num_rows * self._cell_size + 10
 
             # self._mazes[i].solve()
+            self._mazes[i].draw_shortest_path()
 
         print("Mazes initialised!")
     

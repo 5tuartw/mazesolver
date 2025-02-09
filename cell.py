@@ -30,19 +30,19 @@ class Cell():
     if self.has_left_wall:
       self._win.create_line(x1,y1,x1,y2, fill="black")
     else:
-      self._win.create_line(x1,y1,x1,y2, fill="white")
+      self._win.create_line(x1,y1,x1,y2, fill=fill_colour)
     if self.has_right_wall:
       self._win.create_line(x2,y1,x2,y2, fill="black")
     else:
-      self._win.create_line(x2,y1,x2,y2, fill="white")
+      self._win.create_line(x2,y1,x2,y2, fill=fill_colour)
     if self.has_top_wall:
       self._win.create_line(x1,y1,x2,y1, fill="black")
     else:
-      self._win.create_line(x1,y1,x2,y1, fill="white")
+      self._win.create_line(x1,y1,x2,y1, fill=fill_colour)
     if self.has_bottom_wall:
       self._win.create_line(x1,y2,x2,y2, fill="black")
     else:
-      self._win.create_line(x1,y2,x2,y2, fill="white")
+      self._win.create_line(x1,y2,x2,y2, fill=fill_colour)
 
   def find_centre(self):
     return Point((self._x1 + self._x2) / 2, (self._y1 + self._y2) / 2)

@@ -40,6 +40,8 @@ class Maze():
       self._break_walls_backtracking_r(0,0)
     if self._style == "Prim's":
       self._break_walls_prims()
+    if self._style == "Kruskal's":
+      self._break_walls_kruskal()
     self.colour_paths()
     self._reset_cells_visited()
 
@@ -69,7 +71,7 @@ class Maze():
     if self._canvas is None:
       return
     self._canvas.update()
-    base_delay = 0.005
+    base_delay = 0.001
     scale_factor = (self._num_cols * self._num_rows / 100)
     delay = max (0.001, min(base_delay, base_delay / scale_factor))
     time.sleep(delay)
@@ -80,7 +82,10 @@ class Maze():
     self._cells[self._num_cols-1][self._num_rows-1].has_bottom_wall = False
     self._draw_cell(self._num_cols-1, self._num_rows-1)
   
+
   #recursive backtracking algorithm for maze generation
+  #starts with cell i, j and moves to a random unvisited neighbour, removing walls in between them
+  #if no unvisited neighbours, backtracks to the previous cell
   def _break_walls_backtracking_r(self, i, j):
     self._cells[i][j].visited = True
     while True:
@@ -126,7 +131,12 @@ class Maze():
       #time.sleep(0.4)
       self._break_walls_backtracking_r(next_cell[0], next_cell[1])
 
+
   #Prim's algorithm for maze generation
+  #Starts with a random cell and adds all walls to a list
+  #Randomly selects a wall from the list and removes it if one cell is visited and the other is not
+  #Adds the new cell to the list of visited cells and adds all walls of the new cell to the list
+  #Repeats until all cells are visited
   def _break_walls_prims(self):
     start_x = random.randrange(self._num_cols)
     start_y = random.randrange(self._num_rows)
@@ -183,7 +193,53 @@ class Maze():
         self._animate()
 
     self._reset_cells_visited()
-    
+
+  def _break_walls_kruskal(self):
+    walls = []
+    sets = {}
+    for i in range(self._num_cols):
+        for j in range(self._num_rows):
+            sets[(i, j)] = (i, j)
+            if i > 0:
+                walls.append((i, j, i-1, j))
+            if j > 0:
+                walls.append((i, j, i, j-1))
+
+    def find(cell):
+        if sets[cell] != cell:
+            sets[cell] = find(sets[cell])
+        return sets[cell]
+
+    def union(cell1, cell2):
+        root1 = find(cell1)
+        root2 = find(cell2)
+        if root1 != root2:
+            sets[root2] = root1
+
+    random.shuffle(walls)
+    for wall in walls:
+        x1, y1, x2, y2 = wall
+        if find((x1, y1)) != find((x2, y2)):
+            if x1 == x2:
+                if y1 > y2:
+                    self._cells[x1][y1].has_top_wall = False
+                    self._cells[x2][y2].has_bottom_wall = False
+                else:
+                    self._cells[x1][y1].has_bottom_wall = False
+                    self._cells[x2][y2].has_top_wall = False
+            else:
+                if x1 > x2:
+                    self._cells[x1][y1].has_left_wall = False
+                    self._cells[x2][y2].has_right_wall = False
+                else:
+                    self._cells[x1][y1].has_right_wall = False
+                    self._cells[x2][y2].has_left_wall = False
+            union((x1, y1), (x2, y2))
+            self._draw_cell(x1, y1)
+            self._draw_cell(x2, y2)
+            self._animate()
+
+    self._reset_cells_visited()
 
   def _reset_cells_visited(self):
     self._visit_count = 0
@@ -259,54 +315,66 @@ class Maze():
                   queue.append((neighbor, path + [neighbor]))
       return None
 
+  def draw_shortest_path(self):
+      if self._shortest_path:
+              pi = None
+              pj = None
+      for i, j in self._shortest_path:
+          if pi is not None:
+              self._cells[pi][pj].draw_move(self._cells[i][j])
+          pi = i
+          pj = j
+          self._animate()
+
   def update_distances_to_path(self):
-      def dfs_update(i, j):
-          stack = [(i, j)]
-          visited = set()
-          while stack:
-              ci, cj = stack.pop()
-              if (ci, cj) in self._shortest_path:
-                  self._cells[ci][cj].distance_to_path = 0
-                  continue
 
-              if (ci, cj) in visited:
-                  continue
-              visited.add((ci, cj))
+      # 1. Find cells on the shortest path with branches
+      branching_cells = []
+      for i, j in self._shortest_path:
+          neighbors = []
+          if i > 0 and not self._cells[i][j].has_left_wall:
+              neighbors.append((i - 1, j))
+          if i < self._num_cols - 1 and not self._cells[i][j].has_right_wall:
+              neighbors.append((i + 1, j))
+          if j > 0 and not self._cells[i][j].has_top_wall:
+              neighbors.append((i, j - 1))
+          if j < self._num_rows - 1 and not self._cells[i][j].has_bottom_wall:
+              neighbors.append((i, j + 1))
 
+          # Check if there's a neighbor not on the shortest path
+          for ni, nj in neighbors:
+              if (ni, nj) not in self._shortest_path:
+                  branching_cells.append((i, j))
+                  break  # Move on to the next cell in the shortest path
+
+      # 2. Initialize distances for cells on the shortest path
+      for i, j in self._shortest_path:
+          self._cells[i][j].distance_to_path = 0
+
+      # 3. Calculate distances for branching cells and their neighbors
+      distance = 1
+      current_level = branching_cells  # Start with the branching cells
+      while current_level:
+          next_level = []
+          for i, j in current_level:
               neighbors = []
-              if ci > 0 and not self._cells[ci][cj].has_left_wall:
-                  neighbors.append((ci-1, cj))
-              if ci < self._num_cols - 1 and not self._cells[ci][cj].has_right_wall:
-                  neighbors.append((ci+1, cj))
-              if cj > 0 and not self._cells[ci][cj].has_top_wall:
-                  neighbors.append((ci, cj-1))
-              if cj < self._num_rows - 1 and not self._cells[ci][cj].has_bottom_wall:
-                  neighbors.append((ci, cj+1))
+              if i > 0 and not self._cells[i][j].has_left_wall:
+                  neighbors.append((i - 1, j))
+              if i < self._num_cols - 1 and not self._cells[i][j].has_right_wall:
+                  neighbors.append((i + 1, j))
+              if j > 0 and not self._cells[i][j].has_top_wall:
+                  neighbors.append((i, j - 1))
+              if j < self._num_rows - 1 and not self._cells[i][j].has_bottom_wall:
+                  neighbors.append((i, j + 1))
 
-              min_distance = float('inf')
               for ni, nj in neighbors:
-                  if self._cells[ni][nj].distance_to_path is not None:
-                      min_distance = min(min_distance, self._cells[ni][nj].distance_to_path)
+                  if self._cells[ni][nj].distance_to_path is None:
+                      self._cells[ni][nj].distance_to_path = distance
+                      self._max_distance_to_path = max(self._max_distance_to_path, distance)
+                      next_level.append((ni, nj))
 
-              if min_distance != float('inf'):
-                  self._cells[ci][cj].distance_to_path = min_distance + 1
-                  self._max_distance_to_path = max(self._max_distance_to_path, self._cells[ci][cj].distance_to_path)
-              else:
-                  for ni, nj in neighbors:
-                      if self._cells[ni][nj].distance_to_path is None:
-                          stack.append((ni, nj))
-
-      self._max_distance_to_path = 0  # Reset max distance before updating
-      for i in range(self._num_cols):
-          for j in range(self._num_rows):
-              if self._cells[i][j].distance_to_path is None:
-                  dfs_update(i, j)
-      
-      # Debugging output to check if all cells have a distance_to_path value
-      for i in range(self._num_cols):
-          for j in range(self._num_rows):
-              if self._cells[i][j].distance_to_path is None:
-                  print(f"Cell ({i}, {j}) does not have a distance_to_path value")
+          current_level = next_level  # Move to the next level of branching
+          distance += 1
 
 
   def colour_paths(self):
@@ -326,8 +394,10 @@ class Maze():
                           color = '#FFFF00'  # Yellow
                       else:
                           red_intensity = 255
-                          green_intensity = int(255 * (1 - (distance / longest_path)))
+                          green_intensity = int(255 * (1 - (distance / len(self._shortest_path))))
+                          green_intensity = max(0, min(255, green_intensity))  # Ensure green_intensity is within 0-255
                           color = f'#{red_intensity:02x}{green_intensity:02x}00'
                       self._cells[i][j].draw(self._x1 + i * self._cell_size_x, self._y1 + j * self._cell_size_y, self._x1 + (i+1) * self._cell_size_x, self._y1 + (j+1) * self._cell_size_y, colour=color)
                       self._animate()
+  
   
