@@ -1,3 +1,5 @@
+## This is a Boot.dev guided project ##
+<a href="https://www.boot.dev/">Boot.dev</a>
 # Maze Solver
 
 This project is a maze solver application built using Python and Tkinter. It generates and solves mazes using different algorithms and displays them in a graphical window.
